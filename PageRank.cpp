@@ -1,4 +1,4 @@
-#include <fstream>
+#include "Common.h"
 #include "PageRank.h"
 
 void PageRankInit(int argc, char* argv[], Master<double, double, double> &master){

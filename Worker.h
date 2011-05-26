@@ -29,8 +29,8 @@ template <typename VertexValue,
           typename MessageValue>
 void* Worker<VertexValue, EdgeValue, MessageValue>::run() {
 
-    PRINTF("[Worker %d] begin", threadId);
-    printf("[Worker %d] begin", threadId);
+    PRINTF("[Worker %d] begin\n", threadId);
+    printf("[Worker %d] begin\n", threadId);
 
     // while termination requirements are not met
     while(!master->_haltVoters.concensus()){

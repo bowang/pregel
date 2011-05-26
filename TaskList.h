@@ -106,7 +106,7 @@ template <typename VertexValue,
           typename MessageValue>
 void TaskList<VertexValue, EdgeValue, MessageValue>::simplePartition(){
     taskPartition.resize(pVertexList->size());
-    for(int i = 0; i < pVertexList->size(); i++){
+    for(unsigned i = 0; i < pVertexList->size(); i++){
         taskPartition[i].insert(i);
     }
 }
@@ -119,7 +119,7 @@ void TaskList<VertexValue, EdgeValue, MessageValue>::evenPartition(){
     int partitionNum  = numProcs;
     taskPartition.resize(numProcs);
 
-    for(int i = 0; i < pVertexList->size(); i++){
+    for(unsigned i = 0; i < pVertexList->size(); i++){
         taskPartition[i/partitionSize].insert(i);
     }
 }

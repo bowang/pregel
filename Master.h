@@ -117,7 +117,7 @@ template <typename VertexValue,
           typename MessageValue>
 void Master<VertexValue, EdgeValue, MessageValue>::switchMessagelist() {
     _superstep++;
-    for(int i = 0; i < curtMsgList->size(); i++)
+    for(unsigned i = 0; i < curtMsgList->size(); i++)
         (*curtMsgList)[i].clear();
     vector< MessageList<MessageValue> > *tmp = curtMsgList;
     curtMsgList = nextMsgList;
