@@ -17,7 +17,7 @@ template <typename VertexValue,
           typename MessageValue>
 class Master {
 public:
-    Master();
+    Master(const int& numProcs);
     ~Master(){};
     void initialTasks();
     void run();
@@ -41,11 +41,11 @@ private:
     int  _numVertices;
     int  _superstep;
     int  _curtTaskId;
-    bool _finished;
     Votes _haltVoters;
     vector< Worker<VertexValue, EdgeValue, MessageValue>* > _workers;
     bool *_threadReady;
     pthread_mutex_t _taskMutex;
+    pthread_mutex_t _syncMutex;
     pthread_cond_t  _taskSync;
     PartitionHeuristics  _partitionHeuristic;
 
@@ -62,9 +62,7 @@ private:
 template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
-Master<VertexValue, EdgeValue, MessageValue>::Master(){
-    // TODO: define the format to set number of processors
-    _numProcs = 1;
+Master<VertexValue, EdgeValue, MessageValue>::Master(const int& numProcs): _numProcs(numProcs){
     _numVertices = 0;
     _partitionHeuristic = SimplePartition;
     _threadReady = new bool[_numProcs];
@@ -99,6 +97,8 @@ void Master<VertexValue, EdgeValue, MessageValue>::run(){
         
     pthread_mutex_init(&_taskMutex, NULL);
     pthread_cond_init(&_taskSync, NULL);
+    pthread_mutex_init(&_syncMutex, NULL);
+    _threadReady[0] = true;
 
     PRINTF("[Master] creating %d threads\n", _numProcs);
     for(int i = 0; i < _numProcs; i++){

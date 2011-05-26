@@ -8,7 +8,12 @@
 
 int main(int argc, char* argv[])
 {
-    Master<double, double, double> master;
+    if(argc < 2){
+        printf("Usage: %s <num_threads> [application parameters]\n", argv[0]);
+        exit(1);
+    }
+    int numProcs = atoi(argv[1]);
+    Master<double, double, double> master(numProcs);
 
 #ifdef PAGERANK
     printf("[main] running PageRank on Pregel\n");
