@@ -2,14 +2,13 @@
 #include "PageRank.h"
 
 void PageRankInit(int argc, char* argv[], Master<double, double, double> &master){
-    if (argc != 2) {
-        printf ("Usage: pagerank <input file>\n");
+    if (argc != 3) {
+        printf ("Usage: %s <num_procs> <input_file>\n", argv[0]);
         exit (1);
     }
     
-    printf("[PageRankInit] parsing PageRank input: %s\n", argv[1]);
-    
-    FILE* input = fopen(argv[1], "rt");
+    printf("[PageRankInit] parsing PageRank input: %s\n", argv[2]);
+    FILE* input = fopen(argv[2], "rt");
     
     int num_sites = 0;
     fscanf(input, "%d\n", &num_sites);

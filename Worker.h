@@ -32,11 +32,15 @@ void* Worker<VertexValue, EdgeValue, MessageValue>::run() {
     PRINTF("[Worker-%d] begin execution\n", threadId);
 
     // while termination requirements are not met
-    while(!master->_haltVoters.concensus()){
+    while(true){
+        if(master->_haltVoters.concensus()){
+            master->_threadReady[threadId] = true;
+            break;
+        }
         PRINTF("[Worker-%d] superstep %d begin\n", threadId, master->superstep());
-        master->_finished = false;
+        bool finished = false;
         // while tasks of a certain superstep are not finished yet
-        while(master->_finished==false){
+        while(finished==false){
             // get a new task id
             int myTaskId = -1;
             pthread_mutex_lock(&(master->_taskMutex));
@@ -45,11 +49,11 @@ void* Worker<VertexValue, EdgeValue, MessageValue>::run() {
                 master->_curtTaskId++;
             }
             else{
-                master->_finished = true;
+                finished = true;
             }
             pthread_mutex_unlock(&(master->_taskMutex));
 
-            if(!master->_finished){
+            if(!finished){
                 PRINTF("[Worker-%d] assigned task[%d]\n", threadId, myTaskId);
                 // get a new task
                 set<int> * task = master->_taskList->getTask(myTaskId);
@@ -62,11 +66,14 @@ void* Worker<VertexValue, EdgeValue, MessageValue>::run() {
         }
 
         // sync at superstep
-        master->_threadReady[threadId] = true;
         if(threadId != 0){
             // [thread 1 ~ n-1]
             PRINTF("[Worker-%d] going to sleep\n", threadId);
-            pthread_cond_wait(&(master->_taskSync), NULL);
+            pthread_mutex_lock(&(master->_syncMutex));
+            master->_threadReady[threadId] = true;
+            pthread_cond_wait(&(master->_taskSync), &(master->_syncMutex));
+            PRINTF("[Worker-%d] awake\n", threadId);
+            pthread_mutex_unlock(&(master->_syncMutex));
         }
         else{
             // [thread 0]
@@ -74,24 +81,26 @@ void* Worker<VertexValue, EdgeValue, MessageValue>::run() {
             bool allReady = false;
             while(!allReady){
                 allReady = true;
-                for(int i = 0; i < master->_numProcs; i++){
+                for(int i = 1; i < master->_numProcs; i++){
                     if(master->_threadReady[i]==false)
                         allReady = false;
                 }
             }
-            printf("[Worker-%d] superstep %d finish\n", threadId, master->_superstep);
+            printf("[Worker-%d] superstep %d finish\n\n", threadId, master->_superstep);
             // reset states for next superstep
             master->switchMessagelist();
-            pthread_mutex_lock(&(master->_taskMutex));
             master->_curtTaskId = 0;
-            pthread_mutex_unlock(&(master->_taskMutex));
-            for(int i = 0; i < master->_numProcs; i++){
+            for(int i = 1; i < master->_numProcs; i++){
                 master->_threadReady[i] = false;
             }
             // TODO: add rescheduling method here, i.e., re-initialize taskList
             
             // signal all other threads
+            pthread_mutex_lock(&(master->_syncMutex));
+            PRINTF("[Worker-%d] pthread_cond_broadcast\n", threadId);
             pthread_cond_broadcast(&(master->_taskSync));
+            PRINTF("[Worker-%d] out of mutex\n", threadId);
+            pthread_mutex_unlock(&(master->_syncMutex));
         }
     }
     return NULL;
