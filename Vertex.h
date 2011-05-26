@@ -43,13 +43,13 @@ class Vertex {
 
   protected:
     //virtual void combine(const int& dest_vertex, const MessageValue& message) {}
+    int id;
     
   private:
     VertexValue value;
     vector<Edge<EdgeValue>*> outEdgeList;
     Master<VertexValue, EdgeValue, MessageValue>* master;
     EdgeIterator<EdgeValue> itr;
-    int id;
 };
 
 

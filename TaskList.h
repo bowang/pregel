@@ -26,10 +26,10 @@ class TaskList {
 public:
     TaskList(vector< Vertex<VertexValue,EdgeValue,MessageValue>* >* vertexList, int numP);
     ~TaskList();
-    void insertTask(int vertexId, int partitionId);
-    bool removeTask(int vertexId, int partitionId);
+    void insertTask(int vertexId, int taskId);
+    bool removeTask(int vertexId, int taskId);
     void partitionTasks(PartitionHeuristics heuristic);
-    set<int>* getTaskPartition(int partitionId);
+    set<int>* getTask(int taskId);
     int size();
 
 private:
@@ -61,19 +61,19 @@ TaskList<VertexValue, EdgeValue, MessageValue>::TaskList
 template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
-void TaskList<VertexValue, EdgeValue, MessageValue>::insertTask(int vertexId, int partitionId){
-    assert(partitionId < taskPartition.size());
-    taskPartition[partitionId].insert(vertexId);
+void TaskList<VertexValue, EdgeValue, MessageValue>::insertTask(int vertexId, int taskId){
+    assert(taskId < taskPartition.size());
+    taskPartition[taskId].insert(vertexId);
 }
 
 template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
-bool TaskList<VertexValue, EdgeValue, MessageValue>::removeTask(int vertexId, int partitionId){
-    assert(partitionId < taskPartition.size());
-    set<int>::iterator it = taskPartition[partitionId].find(vertexId);
-    if(it != taskPartition[partitionId].end()){
-        taskPartition[partitionId].erase(it);
+bool TaskList<VertexValue, EdgeValue, MessageValue>::removeTask(int vertexId, int taskId){
+    assert(taskId < taskPartition.size());
+    set<int>::iterator it = taskPartition[taskId].find(vertexId);
+    if(it != taskPartition[taskId].end()){
+        taskPartition[taskId].erase(it);
         return true;
     }
     else{
@@ -86,10 +86,10 @@ template <typename VertexValue,
           typename MessageValue>
 void TaskList<VertexValue, EdgeValue, MessageValue>::partitionTasks(PartitionHeuristics heuristic){
     switch (heuristic) {
-        case SimplePartition   : simplePartition();   break;
-        case EvenPartition     : evenPartition();     break;
-        case AdaptivePartition : adaptivePartition(); break;
-        case LocalityPartition : localityPartition(); break;
+        case SimplePartition   : PRINTF("[TaskList] using SimplePartition\n");   simplePartition();   break;
+        case EvenPartition     : PRINTF("[TaskList] using EvenPartition\n");     evenPartition();     break;
+        case AdaptivePartition : PRINTF("[TaskList] using AdaptivePartition\n"); adaptivePartition(); break;
+        case LocalityPartition : PRINTF("[TaskList] using LocalityPartition\n"); localityPartition(); break;
         default: printf("[error] unknown partition heuristic\n"); exit(1);
     };
 }
@@ -151,8 +151,8 @@ void TaskList<VertexValue, EdgeValue, MessageValue>::localityPartition(){
 template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
-set<int>* TaskList<VertexValue, EdgeValue, MessageValue>::getTaskPartition(int partitionId){
-    return &taskPartition[partitionId];
+set<int>* TaskList<VertexValue, EdgeValue, MessageValue>::getTask(int taskId){
+    return &taskPartition[taskId];
 }
 
 #endif

@@ -9,13 +9,13 @@
 int main(int argc, char* argv[])
 {
     Master<double, double, double> master;
-    master.initialTasks();
 
 #ifdef PAGERANK
     printf("[main] running PageRank on Pregel\n");
     PageRankInit(argc, argv, master);
 #endif
 
+    master.initialTasks();
     master.run();
     printf("[main] task done!\n");
     return 0;

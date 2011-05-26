@@ -11,18 +11,17 @@ public:
     }
 
     void addVoter(int id) {
-        votes.push_back(false);
         positionMap.insert(pair<int, int>(id, votes.size()));
+        votes.push_back(false);
     }
 
     void removeVoter(int id) {
         votes[positionMap[id]] = true;
-        return;
     }
 
     bool concensus() {
         for (vector<bool>::iterator itr = votes.begin(); itr < votes.end(); itr++) {
-            if (!(*itr))
+            if (!(*itr)) 
                 return false;
         }
         return true;
@@ -30,7 +29,6 @@ public:
 
     void vote(int id) {
         votes[positionMap[id]] = true;
-        return;
     }
 
 private:

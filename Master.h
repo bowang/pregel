@@ -76,10 +76,6 @@ template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
 void Master<VertexValue, EdgeValue, MessageValue>::initialTasks(){
-
-    _taskList = new TaskList<VertexValue, EdgeValue, MessageValue>(_vertexList, _numProcs);
-    _taskList->partitionTasks(_partitionHeuristic);
-
     _superstep = 0;
     _curtTaskId = 0;
     msgList0.clear();
@@ -88,6 +84,10 @@ void Master<VertexValue, EdgeValue, MessageValue>::initialTasks(){
     msgList1.resize(_numVertices);
     curtMsgList = &msgList0;
     nextMsgList = &msgList1;
+    _taskList = new TaskList<VertexValue, EdgeValue, MessageValue>(_vertexList, _numProcs);
+    _taskList->partitionTasks(_partitionHeuristic);
+    PRINTF("[Master] #vertices = %d, #partitions = %d\n", _numVertices, _taskList->size());
+
 }
 
 template <typename VertexValue,
@@ -95,12 +95,12 @@ template <typename VertexValue,
           typename MessageValue>
 void Master<VertexValue, EdgeValue, MessageValue>::run(){    
 
-    printf("[Master] graph processing started\n");
-
+    PRINTF("[Master] graph processing started\n");    
+        
     pthread_mutex_init(&_taskMutex, NULL);
     pthread_cond_init(&_taskSync, NULL);
 
-    printf("[Master] creating %d threads\n", _numProcs);
+    PRINTF("[Master] creating %d threads\n", _numProcs);
     for(int i = 0; i < _numProcs; i++){
         _workers.push_back(new Worker<VertexValue, EdgeValue, MessageValue>(i, this));
         _threadReady[i] = false;
@@ -146,7 +146,6 @@ template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
 bool Master<VertexValue, EdgeValue, MessageValue>::receiveMessage(const int& dest_vertex, const MessageValue& message) {
-    cout << curtMsgList->size() << endl;
     (*curtMsgList)[dest_vertex].addMessage(message);
     return true;
 }
