@@ -93,6 +93,7 @@ void* Worker<VertexValue, EdgeValue, MessageValue>::run() {
         }
     }
 
+    return NULL;
 }
 
 #endif

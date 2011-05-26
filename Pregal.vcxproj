@@ -84,22 +84,28 @@
   <ItemGroup>
     <ClInclude Include="Edge.h" />
     <ClInclude Include="Message.h" />
+    <ClInclude Include="PageRank.h" />
     <ClInclude Include="PageRankVertex.h" />
     <ClInclude Include="Pregel.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Master.h" />
     <ClInclude Include="TaskList.h" />
+    <ClInclude Include="Thread.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Votes.h" />
+    <ClInclude Include="Worker.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Edge.cpp" />
     <ClCompile Include="Message.cpp" />
+    <ClCompile Include="PageRank.cpp" />
     <ClCompile Include="PageRankVertex.cpp" />
     <ClCompile Include="Pregel.cpp" />
     <ClCompile Include="Master.cpp" />
     <ClCompile Include="TaskList.cpp" />
+    <ClCompile Include="Thread.cpp" />
     <ClCompile Include="Vertex.cpp" />
+    <ClCompile Include="Worker.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
