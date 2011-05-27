@@ -8,6 +8,9 @@ public:
     Votes () {
         votes.clear();
         positionMap.clear();
+        superstepCache = -1;
+        concensusCache = false;
+        pthread_mutex_init(&concensusMutex, NULL);
     }
 
     void addVoter(int id) {
@@ -20,13 +23,21 @@ public:
     }
 
     bool concensus() {
-        for (vector<bool>::iterator itr = votes.begin(); itr < votes.end(); itr++) {
-            if (!(*itr)) 
-                return false;
-        }
+        for (vector<bool>::iterator itr = votes.begin(); itr < votes.end(); itr++)
+            if (!(*itr)) return false;
         return true;
     }
 
+    bool concensus(int superstep) {
+        pthread_mutex_lock(&concensusMutex);
+        if(superstep != superstepCache) {
+            concensusCache = concensus();
+            superstepCache = superstep;
+        }
+        pthread_mutex_unlock(&concensusMutex);
+        return concensusCache;
+    }
+    
     void vote(int id) {
         votes[positionMap[id]] = true;
     }
@@ -34,6 +45,9 @@ public:
 private:
     vector<bool> votes;
     map<int, int> positionMap;
+    int superstepCache;
+    bool concensusCache;
+    pthread_mutex_t concensusMutex;
 };
 
 

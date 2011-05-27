@@ -33,6 +33,9 @@ class Vertex {
     const VertexValue& getValue();
     VertexValue* mutableValue();
     void addOutEdge(const int &dest, const EdgeValue &val);
+    bool removeOutEdgeFirst(const int &dest);
+    bool removeOutEdgeAll(const int &dest);
+    void removeOutEdges();
     EdgeIterator<EdgeValue> getOutEdgeIterator();
     bool sendMessageTo(const int& dest_vertex, const MessageValue& message);
     bool sendMessageToAllNeighbors(const MessageValue& message);
@@ -75,7 +78,6 @@ template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
 Vertex<VertexValue, EdgeValue, MessageValue>::~Vertex() {
-    // Remove vertex from global vote
     master->removeVertex(id);
 }
 
@@ -111,6 +113,43 @@ void Vertex<VertexValue, EdgeValue, MessageValue>::addOutEdge(const int &dest, c
 template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
+bool Vertex<VertexValue, EdgeValue, MessageValue>::removeOutEdgeFirst(const int &dest) {
+    for(typename vector<Edge<EdgeValue>*>::iterator itr = outEdgeList.begin(); itr != outEdgeList.end(); itr++) {
+        if((*itr)->getDest()==dest){
+            outEdgeList.erase(itr);
+            return true;
+        }
+    }
+    return false;
+}
+
+template <typename VertexValue,
+          typename EdgeValue,
+          typename MessageValue>
+bool Vertex<VertexValue, EdgeValue, MessageValue>::removeOutEdgeAll(const int &dest) {
+    bool found = false;
+    for(typename vector<Edge<EdgeValue>*>::iterator itr = outEdgeList.begin(); itr != outEdgeList.end(); itr++) {
+        if((*itr)->getDest()==dest){
+            outEdgeList.erase(itr);
+            found = true;
+        }
+    }
+    return found;
+}
+
+template <typename VertexValue,
+          typename EdgeValue,
+          typename MessageValue>
+void Vertex<VertexValue, EdgeValue, MessageValue>::removeOutEdges() {
+    for(typename vector<Edge<EdgeValue>*>::iterator itr = outEdgeList.begin(); itr != outEdgeList.end(); itr++) {
+        delete (*itr);
+    }
+    outEdgeList.clear();
+}
+
+template <typename VertexValue,
+          typename EdgeValue,
+          typename MessageValue>
 EdgeIterator<EdgeValue> Vertex<VertexValue, EdgeValue, MessageValue>::getOutEdgeIterator() {
     itr.set(outEdgeList);
     return itr;
@@ -129,7 +168,7 @@ template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
 int Vertex<VertexValue, EdgeValue, MessageValue>::numVertices() {
-    return (outEdgeList.size());
+    return master->numVertices();
 }
 
 
@@ -146,7 +185,7 @@ template <typename VertexValue,
           typename MessageValue>
 bool Vertex<VertexValue, EdgeValue, MessageValue>::sendMessageToAllNeighbors(const MessageValue& message) {
     for (typename vector<Edge<EdgeValue>*>::iterator itr = outEdgeList.begin(); itr != outEdgeList.end(); itr++) {
-        int dest_vertex = (*itr)->getTarget();
+        int dest_vertex = (*itr)->getDest();
         sendMessageTo(dest_vertex, message);		
     }
     return true;

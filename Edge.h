@@ -13,13 +13,13 @@
 template <typename EdgeValue>
 class Edge {
   public:
-    Edge(int _target, EdgeValue _value):target(_target), value(_value) {}
-    int getTarget();
+    Edge(int _dest, EdgeValue _value):dest(_dest), value(_value) {}
+    int getDest();
     const EdgeValue& getValue();
     EdgeValue* mutableValue();
     
   private:
-    int target;
+    int dest;
     EdgeValue value;
 };
 
@@ -37,7 +37,7 @@ class EdgeIterator {
     void set(vector<Edge<EdgeValue>* >& edges);
     bool done();
     void next();
-    Edge<EdgeValue>* target();
+    Edge<EdgeValue>* dest();
     EdgeValue getValue();
     int size();
   private:
@@ -62,8 +62,8 @@ EdgeValue* Edge<EdgeValue>::mutableValue() {
 }
 
 template <typename EdgeValue>
-int Edge<EdgeValue>::getTarget() {
-    return target;
+int Edge<EdgeValue>::getDest() {
+    return dest;
 }
 
 /**********************************
@@ -90,7 +90,7 @@ void EdgeIterator<EdgeValue>::next() {
 }
 
 template <typename EdgeValue>
-Edge<EdgeValue>* EdgeIterator<EdgeValue>::target() {
+Edge<EdgeValue>* EdgeIterator<EdgeValue>::dest() {
     return (*itr);
 }
 

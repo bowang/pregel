@@ -43,14 +43,14 @@ private:
     int  _curtTaskId;
     Votes _haltVoters;
     vector< Worker<VertexValue, EdgeValue, MessageValue>* > _workers;
-    bool *_threadReady;
     pthread_mutex_t _taskMutex;
-    pthread_mutex_t _syncMutex;
-    pthread_cond_t  _taskSync;
+    pthread_barrier_t _barrier1;
+    pthread_barrier_t _barrier2;
     PartitionHeuristics  _partitionHeuristic;
 
     void switchMessagelist();
-
+    void removeVertexFromAdaptivePartition(const int& id);
+    void removeVertexFromLocalityPartition(const int& id);
 };
 
 /*********************************
@@ -64,10 +64,8 @@ template <typename VertexValue,
           typename MessageValue>
 Master<VertexValue, EdgeValue, MessageValue>::Master(const int& numProcs): _numProcs(numProcs){
     _numVertices = 0;
-    _partitionHeuristic = SimplePartition;
-    _threadReady = new bool[_numProcs];
+    _partitionHeuristic = EvenPartition; // SimplePartition;
     _vertexList = new vector < Vertex<VertexValue, EdgeValue, MessageValue>* >;
-    _taskList = new TaskList<VertexValue, EdgeValue, MessageValue>(_vertexList, _numProcs);
 }
 
 template <typename VertexValue,
@@ -94,16 +92,14 @@ template <typename VertexValue,
 void Master<VertexValue, EdgeValue, MessageValue>::run(){    
 
     PRINTF("[Master] graph processing started\n");    
-        
+    
     pthread_mutex_init(&_taskMutex, NULL);
-    pthread_cond_init(&_taskSync, NULL);
-    pthread_mutex_init(&_syncMutex, NULL);
-    _threadReady[0] = true;
+    pthread_barrier_init(&_barrier1, NULL, _numProcs);
+    pthread_barrier_init(&_barrier2, NULL, _numProcs);
 
     PRINTF("[Master] creating %d threads\n", _numProcs);
     for(int i = 0; i < _numProcs; i++){
         _workers.push_back(new Worker<VertexValue, EdgeValue, MessageValue>(i, this));
-        _threadReady[i] = false;
         _workers[i]->start();
     }
     
@@ -116,9 +112,10 @@ template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
 void Master<VertexValue, EdgeValue, MessageValue>::switchMessagelist() {
+    printf("[Master] superstep %d finished\n\n", _superstep);
     _superstep++;
-    for(unsigned i = 0; i < curtMsgList->size(); i++)
-        (*curtMsgList)[i].clear();
+    for(unsigned i = 0; i < nextMsgList->size(); i++)
+        (*nextMsgList)[i].clear();
     vector< MessageList<MessageValue> > *tmp = curtMsgList;
     curtMsgList = nextMsgList;
     nextMsgList = tmp;
@@ -128,8 +125,38 @@ template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
 void Master<VertexValue, EdgeValue, MessageValue>::removeVertex(const int& id) {
+    // remove from haltVoter
     _haltVoters.removeVoter(id);
-    // TODO: how to remove the vertex from both vertexList and taskList?
+    
+    // remove its outEdges
+    (*_vertexList)[id]->removeOutEdges();
+    delete (*_vertexList)[id];
+    (*_vertexList)[id] = NULL;
+    
+    // remove from taskList
+    switch(_partitionHeuristic) {
+        case SimplePartition   : _taskList->removeTask(id, id); break;
+        case EvenPartition     : _taskList->removeTask(id, id/_taskList->partitionSize()); break;
+        case AdaptivePartition : removeVertexFromAdaptivePartition(id); break;
+        case LocalityPartition : removeVertexFromLocalityPartition(id); break;
+        default: printf("[Master] unknown partition heuristic\n"); exit(1);
+    }
+}
+
+template <typename VertexValue,
+          typename EdgeValue,
+          typename MessageValue>
+void removeVertexFromAdaptivePartition(const int& id) {
+    printf("[Master] adaptive partition is not supported yet\n");
+    exit(1);
+}
+
+template <typename VertexValue,
+          typename EdgeValue,
+          typename MessageValue>
+void removeVertexFromLocalityPartition(const int& id) {
+    printf("[Master] locality partition is not supported yet\n");
+    exit(1);
 }
 
 template <typename VertexValue,

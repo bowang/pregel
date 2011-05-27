@@ -30,7 +30,9 @@ public:
     bool removeTask(int vertexId, int taskId);
     void partitionTasks(PartitionHeuristics heuristic);
     set<int>* getTask(int taskId);
-    int size();
+    int size() {return taskPartition.size();}
+    int partitionSize() {return _partitionSize;}
+    int partitionNum()  {return _partitionNum;}
 
 private:
     vector< set<int> > taskPartition;
@@ -38,9 +40,10 @@ private:
     void evenPartition();
     void adaptivePartition();
     void localityPartition();
-    void dynamicPartition();
     vector< Vertex<VertexValue, EdgeValue, MessageValue>* > *pVertexList;
     int numProcs;
+    int _partitionSize;
+    int _partitionNum;
 };
 
 
@@ -62,7 +65,7 @@ template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
 void TaskList<VertexValue, EdgeValue, MessageValue>::insertTask(int vertexId, int taskId){
-    assert(taskId < taskPartition.size());
+    assert((unsigned)taskId < taskPartition.size());
     taskPartition[taskId].insert(vertexId);
 }
 
@@ -70,7 +73,7 @@ template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
 bool TaskList<VertexValue, EdgeValue, MessageValue>::removeTask(int vertexId, int taskId){
-    assert(taskId < taskPartition.size());
+    assert((unsigned)taskId < taskPartition.size());
     set<int>::iterator it = taskPartition[taskId].find(vertexId);
     if(it != taskPartition[taskId].end()){
         taskPartition[taskId].erase(it);
@@ -90,22 +93,17 @@ void TaskList<VertexValue, EdgeValue, MessageValue>::partitionTasks(PartitionHeu
         case EvenPartition     : PRINTF("[TaskList] using EvenPartition\n");     evenPartition();     break;
         case AdaptivePartition : PRINTF("[TaskList] using AdaptivePartition\n"); adaptivePartition(); break;
         case LocalityPartition : PRINTF("[TaskList] using LocalityPartition\n"); localityPartition(); break;
-        default: printf("[error] unknown partition heuristic\n"); exit(1);
+        default: printf("[TaskList] unknown partition heuristic\n"); exit(1);
     };
 }
 
 template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
-int TaskList<VertexValue, EdgeValue, MessageValue>::size(){
-    return taskPartition.size();
-}
-
-template <typename VertexValue,
-          typename EdgeValue,
-          typename MessageValue>
 void TaskList<VertexValue, EdgeValue, MessageValue>::simplePartition(){
-    taskPartition.resize(pVertexList->size());
+    _partitionSize = 1;
+    _partitionNum  = pVertexList->size();
+    taskPartition.resize(_partitionNum);
     for(unsigned i = 0; i < pVertexList->size(); i++){
         taskPartition[i].insert(i);
     }
@@ -115,12 +113,11 @@ template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
 void TaskList<VertexValue, EdgeValue, MessageValue>::evenPartition(){
-    int partitionSize = pVertexList->size()/numProcs + (pVertexList->size()%numProcs==0)?0:1;
-    int partitionNum  = numProcs;
-    taskPartition.resize(numProcs);
-
+    _partitionSize = pVertexList->size()/numProcs + ((pVertexList->size()%numProcs==0)?0:1);
+    _partitionNum  = numProcs;
+    taskPartition.resize(_partitionNum);
     for(unsigned i = 0; i < pVertexList->size(); i++){
-        taskPartition[i/partitionSize].insert(i);
+        taskPartition[i/_partitionSize].insert(i);
     }
 }
 
@@ -128,23 +125,45 @@ template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
 void TaskList<VertexValue, EdgeValue, MessageValue>::adaptivePartition(){
-    printf("[error] adaptive partition is not supported yet\n");
-    exit(1);
-}
-
-template <typename VertexValue,
-          typename EdgeValue,
-          typename MessageValue>
-void TaskList<VertexValue, EdgeValue, MessageValue>::dynamicPartition(){
-    printf("[error] dynamic partition is not supported yet\n");
-    exit(1);
+    _partitionNum  = 16 * numProcs;
+    _partitionSize = pVertexList->size()/_partitionNum + (pVertexList->size()%_partitionNum==0)?0:1;
+    taskPartition.resize(_partitionNum);
+    
+    int i;
+    int index = 0;
+    int granularity = pVertexList->size()/(2*2*numProcs);
+    for(i = 0; i < 2*numProcs; i++){
+        for(int j = 0; j < granularity; j++){
+            taskPartition[i].insert(index++);
+        }
+    }
+    
+    granularity = pVertexList->size()/(4*2*numProcs);
+    for(i = 2*numProcs; i < 4*numProcs; i++){
+        for(int j = 0; j < granularity; j++){
+            taskPartition[i].insert(index++);
+        }
+    }
+    
+    granularity = pVertexList->size()/(4*4*numProcs);
+    for(i = 4*numProcs; i < 8*numProcs-1; i++){
+        for(int j = 0; j < granularity; j++){
+            taskPartition[i].insert(index++);
+        }
+    }
+    for(int j = 0; j < granularity; j++){
+        if(index < pVertexList->size())
+            taskPartition[i].insert(index++);
+        else
+            break;
+    }
 }
 
 template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
 void TaskList<VertexValue, EdgeValue, MessageValue>::localityPartition(){
-    printf("[error] locality partition is not supported yet\n");
+    printf("[TaskList] locality partition is not supported yet\n");
     exit(1);
 }
 

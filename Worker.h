@@ -30,11 +30,15 @@ template <typename VertexValue,
 void* Worker<VertexValue, EdgeValue, MessageValue>::run() {
 
     PRINTF("[Worker-%d] begin execution\n", threadId);
-
+    #ifdef DPRINT
+      FILE* f;
+      if(threadId == 0)
+        f = fopen ("tmp", "wt");
+    #endif
+  
     // while termination requirements are not met
     while(true){
-        if(master->_haltVoters.concensus()){
-            master->_threadReady[threadId] = true;
+        if(master->_haltVoters.concensus(master->_superstep)){
             break;
         }
         PRINTF("[Worker-%d] superstep %d begin\n", threadId, master->superstep());
@@ -65,44 +69,36 @@ void* Worker<VertexValue, EdgeValue, MessageValue>::run() {
             }
         }
 
-        // sync at superstep
-        if(threadId != 0){
-            // [thread 1 ~ n-1]
-            PRINTF("[Worker-%d] going to sleep\n", threadId);
-            pthread_mutex_lock(&(master->_syncMutex));
-            master->_threadReady[threadId] = true;
-            pthread_cond_wait(&(master->_taskSync), &(master->_syncMutex));
-            PRINTF("[Worker-%d] awake\n", threadId);
-            pthread_mutex_unlock(&(master->_syncMutex));
-        }
-        else{
-            // [thread 0]
-            // wait until all other threads are ready
-            bool allReady = false;
-            while(!allReady){
-                allReady = true;
-                for(int i = 1; i < master->_numProcs; i++){
-                    if(master->_threadReady[i]==false)
-                        allReady = false;
-                }
-            }
-            printf("[Worker-%d] superstep %d finish\n\n", threadId, master->_superstep);
+        // sync for state re-initialization
+        // PRINTF("[Worker-%d] arrived at barrier1\n", threadId);
+        pthread_barrier_wait(&(master->_barrier1));
+        
+        if(threadId == 0){
+            /*
+              FPRINTF (f, "[vertex values] ");
+              for (int i = 0; i < master->numVertices(); i++) {
+                  FPRINTF (f, "%.6f\t", master->_vertexList->at(i)->getValue());
+              }
+              FPRINTF (f, "\n");
+            */
+
             // reset states for next superstep
             master->switchMessagelist();
             master->_curtTaskId = 0;
-            for(int i = 1; i < master->_numProcs; i++){
-                master->_threadReady[i] = false;
-            }
+
             // TODO: add rescheduling method here, i.e., re-initialize taskList
             
-            // signal all other threads
-            pthread_mutex_lock(&(master->_syncMutex));
-            PRINTF("[Worker-%d] pthread_cond_broadcast\n", threadId);
-            pthread_cond_broadcast(&(master->_taskSync));
-            PRINTF("[Worker-%d] out of mutex\n", threadId);
-            pthread_mutex_unlock(&(master->_syncMutex));
         }
+        
+        // sync for beginning next superstep
+        // PRINTF("[Worker-%d] arrived at barrier2\n", threadId);
+        pthread_barrier_wait(&(master->_barrier2));
     }
+    #ifdef DPRINT
+      if(threadId == 0)
+        fclose (f);
+    #endif
+    
     return NULL;
 }
 

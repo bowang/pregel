@@ -16,13 +16,16 @@ int main(int argc, char* argv[])
     Master<double, double, double> master(numProcs);
 
 #ifdef PAGERANK
-    printf("[main] running PageRank on Pregel\n");
+    printf("[Main] running PageRank on Pregel\n");
     PageRankInit(argc, argv, master);
 #endif
 
+    Timer timer;
+    timer.start();
     master.initialTasks();
     master.run();
-    printf("[main] task done!\n");
+    timer.stop();
+    printf("[Main] task done! execution time = %lf\n", timer.get_elapsed_time());
     return 0;
 }
 

@@ -10,6 +10,7 @@
 #include <map>
 #include <set>
 #include "pthread.h"
+#include "Timer.h"
 
 using namespace std;
 
@@ -17,6 +18,12 @@ using namespace std;
     #define PRINTF(...) printf(__VA_ARGS__)
 #else
     #define PRINTF(...) 
+#endif
+
+#ifdef DPRINT
+    #define FPRINTF(...) fprintf(__VA_ARGS__)
+#else
+    #define FPRINTF(...) 
 #endif
 
 #endif
