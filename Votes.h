@@ -46,8 +46,8 @@ public:
         votes[positionMap[id]] = false;
     }
 
-    bool vertexStatus(const int& id) {
-        return votes[positionMap[id]];
+    bool vertexActive(const int& id) {
+        return !(votes[positionMap[id]]);
     }
     
 private:

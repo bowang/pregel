@@ -21,14 +21,15 @@ public:
     ~Master(){};
     void initialTasks();
     void run();
-    int superstep() const {return _superstep;};
-    int numVertices() const {return _numVertices;};
+    int superstep() const {return _superstep;}
+    int numVertices() const {return _numVertices;}
+    int evenPartitionSize() const {return _evenPartitionSize;}
     bool receiveMessage(const int& dest_vertex, const MessageValue& message);
     void voteToHalt(const int& id) { _haltVoters.vote(id); }
-    void voteToAlive(const int& id) { _haltVoters.unvote(id); };
+    void voteToActive(const int& id) { _haltVoters.unvote(id); }
     void addVertex(Vertex<VertexValue, EdgeValue, MessageValue> *vertex);
     void removeVertex(const int& id);
-    bool vertexStatus(const int& id);
+    bool vertexActive(const int& id);
     
     friend class Worker<VertexValue, EdgeValue, MessageValue>;
 
@@ -43,11 +44,13 @@ private:
     int  _numVertices;
     int  _superstep;
     int  _curtTaskId;
+    int  _evenPartitionSize;
     Votes _haltVoters;
     vector< Worker<VertexValue, EdgeValue, MessageValue>* > _workers;
     pthread_mutex_t _taskMutex;
     pthread_barrier_t _barrier1;
     pthread_barrier_t _barrier2;
+    pthread_barrier_t _barrier3;
     PartitionHeuristics  _partitionHeuristic;
 
     void switchMessagelist();
@@ -98,7 +101,10 @@ void Master<VertexValue, EdgeValue, MessageValue>::run(){
     pthread_mutex_init(&_taskMutex, NULL);
     pthread_barrier_init(&_barrier1, NULL, _numProcs);
     pthread_barrier_init(&_barrier2, NULL, _numProcs);
+    pthread_barrier_init(&_barrier3, NULL, _numProcs);
 
+    _evenPartitionSize = _numVertices/_numProcs + ((_numVertices%_numProcs==0)?0:1);
+    
     PRINTF("[Master] creating %d threads\n", _numProcs);
     for(int i = 0; i < _numProcs; i++){
         _workers.push_back(new Worker<VertexValue, EdgeValue, MessageValue>(i, this));
@@ -182,8 +188,8 @@ bool Master<VertexValue, EdgeValue, MessageValue>::receiveMessage(const int& des
 template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
-bool Master<VertexValue, EdgeValue, MessageValue>::vertexStatus(const int& id) {
-    return _haltVoters.vertexStatus(id);
+bool Master<VertexValue, EdgeValue, MessageValue>::vertexActive(const int& id) {
+    return _haltVoters.vertexActive(id);
 }
 
 #endif

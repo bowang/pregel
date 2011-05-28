@@ -16,6 +16,7 @@ class MessageList {
     void addMessage(const MessageValue& message);
     void addMessage(const vector<MessageValue>& msgList);
     vector<MessageValue>* getMessages();
+    bool empty();
     void clear();
   private:
     vector<MessageValue> messages;
@@ -34,6 +35,7 @@ class MessageIterator {
     MessageIterator(MessageList<MessageValue>& msgList);
     bool done();
     void next();
+    bool empty();
     MessageValue getValue();
   private:
     typename vector<MessageValue>::iterator itr;
@@ -79,6 +81,10 @@ void MessageList<MessageValue>::clear() {
     return;
 }
 
+template <typename MessageValue>
+bool MessageList<MessageValue>::empty() {
+    return messages.empty();
+}
 
 /*************************************
  *                                   *
@@ -95,6 +101,11 @@ MessageIterator<MessageValue>::MessageIterator (MessageList<MessageValue>& msgLi
 template <typename MessageValue>
 bool MessageIterator<MessageValue>::done() {
     return (!(itr < messages->end()));
+}
+
+template <typename MessageValue>
+bool MessageIterator<MessageValue>::empty() {
+    return messages->empty();;
 }
 
 template <typename MessageValue>

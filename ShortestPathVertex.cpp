@@ -15,6 +15,5 @@ void ShortestPathVertex::compute (MessageIterator<int>* msgs) {
             sendMessageTo(iter.dest()->getDest(), mindist + iter.dest()->getValue());
     }
 
-    if (superstep() == numVertices())
-        voteToHalt();
+    voteToHalt();
 }

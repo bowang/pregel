@@ -64,11 +64,7 @@ void* Worker<VertexValue, EdgeValue, MessageValue>::run() {
                 // process graph
                 for(set<int>::iterator itr = task->begin(); itr != task->end(); itr++) {
                     MessageIterator<MessageValue> *msgItr = new MessageIterator<MessageValue> ((*(master->nextMsgList))[*itr]);
-                    if(!master->vertexStatus(*itr)) {
-                        (*(master->_vertexList))[*itr]->compute(msgItr);
-                    }
-                    else if(!msgItr->done()) {
-                        master->voteToAlive(*itr);
+                    if(master->vertexActive(*itr)) {
                         (*(master->_vertexList))[*itr]->compute(msgItr);
                     }
                 }
@@ -102,6 +98,16 @@ void* Worker<VertexValue, EdgeValue, MessageValue>::run() {
         // sync for beginning next superstep
         // PRINTF("[Worker-%d] arrived at barrier2\n", threadId);
         pthread_barrier_wait(&(master->_barrier2));
+        
+        int i = threadId*master->evenPartitionSize();
+        int end = (threadId+1)*master->evenPartitionSize();
+        if(end > master->numVertices()) end = master->numVertices();
+        for(; i < end; ++i) {
+            if(!master->vertexActive(i) && !(*(master->nextMsgList))[i].empty()){
+                master->voteToActive(i);
+            }
+        }
+        pthread_barrier_wait(&(master->_barrier3));
     }
     #ifdef DPRINT
       if(threadId == 0)
