@@ -121,43 +121,85 @@ void TaskList<VertexValue, EdgeValue, MessageValue>::evenPartition(){
     }
 }
 
+#ifdef PRINTF
+  #define DPRINT_FLAG
+  #undef  PRINTF
+  #define PRINTF(...)
+#endif
+
 template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
 void TaskList<VertexValue, EdgeValue, MessageValue>::adaptivePartition(){
-    _partitionNum  = 16 * numProcs;
-    _partitionSize = pVertexList->size()/_partitionNum + (pVertexList->size()%_partitionNum==0)?0:1;
+    int smallPartitionNum = 16 * numProcs;
+    int numVertices = pVertexList->size();
+    _partitionNum  = 8 * numProcs;
+    _partitionSize = -1;
     taskPartition.resize(_partitionNum);
     
-    int i;
+    int i, numRemaining;
     int index = 0;
-    int granularity = pVertexList->size()/(2*2*numProcs);
+    int granularity = numVertices/(2*2*numProcs) + ((numVertices%(2*2*numProcs)==0)?0:1);
     for(i = 0; i < 2*numProcs; i++){
         for(int j = 0; j < granularity; j++){
             taskPartition[i].insert(index++);
+            PRINTF("%d ", index-1);
         }
+        PRINTF("\n");
     }
+    PRINTF("-----\n");
     
-    granularity = pVertexList->size()/(4*2*numProcs);
+    numRemaining = numVertices - index;
+    granularity = numRemaining/(2*2*numProcs) + ((numRemaining%(2*2*numProcs)==0)?0:1);
     for(i = 2*numProcs; i < 4*numProcs; i++){
         for(int j = 0; j < granularity; j++){
             taskPartition[i].insert(index++);
+            PRINTF("%d ", index-1);
         }
+        PRINTF("\n");
     }
+    PRINTF("-----\n");
     
-    granularity = pVertexList->size()/(4*4*numProcs);
-    for(i = 4*numProcs; i < 8*numProcs-1; i++){
+    numRemaining = numVertices - index;
+    granularity = numRemaining/(4*numProcs) + ((numRemaining%(4*numProcs)==0)?0:1);
+    for(i = 4*numProcs; i < 8*numProcs - 1; i++){
         for(int j = 0; j < granularity; j++){
-            taskPartition[i].insert(index++);
+            if(index < numVertices) {
+                taskPartition[i].insert(index++);
+                PRINTF("%d ", index-1);
+            }
         }
+        PRINTF("\n");
     }
-    for(int j = 0; j < granularity; j++){
-        if(index < pVertexList->size())
-            taskPartition[i].insert(index++);
-        else
+    PRINTF("-----\n");
+    
+    while(index < numVertices){
+        taskPartition[i].insert(index++);
+        PRINTF("%d ", index-1);
+    }
+    PRINTF("\n");
+
+    for(int k = 0; k < _partitionNum; k++){
+        if(taskPartition[k].empty()){
+            _partitionNum = k;
+            PRINTF("_partitionNum = %d\n", _partitionNum);
+            typename vector< set<int> >::iterator itr1 = taskPartition.begin() + k;
+            typename vector< set<int> >::iterator itr2 = taskPartition.end() - 1;
+            for(;itr2 >= itr1; itr2--){
+                taskPartition.erase(itr2);
+                PRINTF("erase taskPartition[%d]\n", itr2 - taskPartition.begin());
+            }
             break;
-    }
+        }
+    }    
+    PRINTF("index = %d, numVertices = %d\n", index, numVertices);
 }
+
+#ifdef DPRINT_FLAG
+  #undef  DPRINT_FLAG
+  #undef  PRINTF
+  #define PRINTF(...) printf(__VA_ARGS__)
+#endif
 
 template <typename VertexValue,
           typename EdgeValue,

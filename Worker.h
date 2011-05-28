@@ -84,6 +84,9 @@ void* Worker<VertexValue, EdgeValue, MessageValue>::run() {
                 #ifdef SHORTESTPATH
                 FPRINTF (f, "%d\t", master->_vertexList->at(i)->getValue());
                 #endif
+                #ifdef BIPARTITEMATCHING
+                FPRINTF (f, "%d\t", master->_vertexList->at(i)->getValue().second);
+                #endif
             }
             FPRINTF (f, "\n");
 
@@ -103,7 +106,9 @@ void* Worker<VertexValue, EdgeValue, MessageValue>::run() {
         int end = (threadId+1)*master->evenPartitionSize();
         if(end > master->numVertices()) end = master->numVertices();
         for(; i < end; ++i) {
-            if(!master->vertexActive(i) && !(*(master->nextMsgList))[i].empty()){
+            if(!master->vertexActive(i) 
+               && !(*(master->nextMsgList))[i].empty()
+               && (*(master->_vertexList))[i]!=NULL ) {
                 master->voteToActive(i);
             }
         }

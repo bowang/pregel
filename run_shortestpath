@@ -1,0 +1,47 @@
+# declare a name for this job
+#PBS -N shortestpath
+# request processors
+#PBS -l nodes=1:h23:ppn=8
+# estimate run time
+#PBS -l cput=2:00:00
+# combine stdout and stderr
+#PBS -j oe
+# commands to run
+cd ~/final_proj
+pwd
+rm -f tmp
+rm -rf ~/final_proj/results/shortestpath
+mkdir ~/final_proj/results/shortestpath
+./shortestpath 1 s shortestpath.in > ~/final_proj/results/shortestpath/s1.out
+mv tmp ~/final_proj/results/shortestpath/s1.result
+./shortestpath 2 s shortestpath.in > ~/final_proj/results/shortestpath/s2.out
+mv tmp ~/final_proj/results/shortestpath/s2.result
+./shortestpath 4 s shortestpath.in > ~/final_proj/results/shortestpath/s4.out
+mv tmp ~/final_proj/results/shortestpath/s4.result
+./shortestpath 8 s shortestpath.in > ~/final_proj/results/shortestpath/s8.out
+mv tmp ~/final_proj/results/shortestpath/s8.result
+./shortestpath 16 s shortestpath.in > ~/final_proj/results/shortestpath/s16.out
+mv tmp ~/final_proj/results/shortestpath/s16.result
+
+./shortestpath 1 e shortestpath.in > ~/final_proj/results/shortestpath/e1.out
+mv tmp ~/final_proj/results/shortestpath/e1.result
+./shortestpath 2 e shortestpath.in > ~/final_proj/results/shortestpath/e2.out
+mv tmp ~/final_proj/results/shortestpath/e2.result
+./shortestpath 4 e shortestpath.in > ~/final_proj/results/shortestpath/e4.out
+mv tmp ~/final_proj/results/shortestpath/e4.result
+./shortestpath 8 e shortestpath.in > ~/final_proj/results/shortestpath/e8.out
+mv tmp ~/final_proj/results/shortestpath/e8.result
+./shortestpath 16 e shortestpath.in > ~/final_proj/results/shortestpath/e16.out
+mv tmp ~/final_proj/results/shortestpath/e16.result
+
+./shortestpath 1 a shortestpath.in > ~/final_proj/results/shortestpath/a1.out
+mv tmp ~/final_proj/results/shortestpath/a1.result
+./shortestpath 2 a shortestpath.in > ~/final_proj/results/shortestpath/a2.out
+mv tmp ~/final_proj/results/shortestpath/a2.result
+./shortestpath 4 a shortestpath.in > ~/final_proj/results/shortestpath/a4.out
+mv tmp ~/final_proj/results/shortestpath/a4.result
+./shortestpath 8 a shortestpath.in > ~/final_proj/results/shortestpath/a8.out
+mv tmp ~/final_proj/results/shortestpath/a8.result
+./shortestpath 16 a shortestpath.in > ~/final_proj/results/shortestpath/a16.out
+mv tmp ~/final_proj/results/shortestpath/a16.result
+

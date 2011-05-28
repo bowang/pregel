@@ -22,7 +22,7 @@ int main(int argc, char* argv[]){
     FILE* output = fopen(filename, "wt");
     fprintf(output, "%d\n", num_nodes);
     for(int i = 0; i < num_nodes; i++) {
-        int num_links = rand()%link_degree;
+        int num_links = link_degree;
         fprintf(output, "%d ", num_links);
         for(int j = 0; j < num_links; j++) {
             int node = rand()%num_nodes;

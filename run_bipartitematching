@@ -1,0 +1,47 @@
+# declare a name for this job
+#PBS -N bipartitematching
+# request processors
+#PBS -l nodes=1:h23:ppn=8
+# estimate run time
+#PBS -l cput=2:00:00
+# combine stdout and stderr
+#PBS -j oe
+# commands to run
+cd ~/final_proj
+pwd
+rm -f tmp
+rm -rf ~/final_proj/results/bipartitematching
+mkdir ~/final_proj/results/bipartitematching
+./bipartitematching 1 s bipartitematching.in > ~/final_proj/results/bipartitematching/s1.out
+mv tmp ~/final_proj/results/bipartitematching/s1.result
+./bipartitematching 2 s bipartitematching.in > ~/final_proj/results/bipartitematching/s2.out
+mv tmp ~/final_proj/results/bipartitematching/s2.result
+./bipartitematching 4 s bipartitematching.in > ~/final_proj/results/bipartitematching/s4.out
+mv tmp ~/final_proj/results/bipartitematching/s4.result
+./bipartitematching 8 s bipartitematching.in > ~/final_proj/results/bipartitematching/s8.out
+mv tmp ~/final_proj/results/bipartitematching/s8.result
+./bipartitematching 16 s bipartitematching.in > ~/final_proj/results/bipartitematching/s16.out
+mv tmp ~/final_proj/results/bipartitematching/s16.result
+
+./bipartitematching 1 e bipartitematching.in > ~/final_proj/results/bipartitematching/e1.out
+mv tmp ~/final_proj/results/bipartitematching/e1.result
+./bipartitematching 2 e bipartitematching.in > ~/final_proj/results/bipartitematching/e2.out
+mv tmp ~/final_proj/results/bipartitematching/e2.result
+./bipartitematching 4 e bipartitematching.in > ~/final_proj/results/bipartitematching/e4.out
+mv tmp ~/final_proj/results/bipartitematching/e4.result
+./bipartitematching 8 e bipartitematching.in > ~/final_proj/results/bipartitematching/e8.out
+mv tmp ~/final_proj/results/bipartitematching/e8.result
+./bipartitematching 16 e bipartitematching.in > ~/final_proj/results/bipartitematching/e16.out
+mv tmp ~/final_proj/results/bipartitematching/e16.result
+
+./bipartitematching 1 a bipartitematching.in > ~/final_proj/results/bipartitematching/a1.out
+mv tmp ~/final_proj/results/bipartitematching/a1.result
+./bipartitematching 2 a bipartitematching.in > ~/final_proj/results/bipartitematching/a2.out
+mv tmp ~/final_proj/results/bipartitematching/a2.result
+./bipartitematching 4 a bipartitematching.in > ~/final_proj/results/bipartitematching/a4.out
+mv tmp ~/final_proj/results/bipartitematching/a4.result
+./bipartitematching 8 a bipartitematching.in > ~/final_proj/results/bipartitematching/a8.out
+mv tmp ~/final_proj/results/bipartitematching/a8.result
+./bipartitematching 16 a bipartitematching.in > ~/final_proj/results/bipartitematching/a16.out
+mv tmp ~/final_proj/results/bipartitematching/a16.result
+

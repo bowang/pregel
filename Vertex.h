@@ -45,7 +45,8 @@ class Vertex {
     friend class Master<VertexValue, EdgeValue, MessageValue>;
 
   protected:
-    //virtual void combine(const int& dest_vertex, const MessageValue& message) {}
+    virtual void combine(MessageIterator<MessageValue>* msgs) {}
+    virtual void missingDestHandler(const int& dest_vertex) {}
     int id;
     
   private:
@@ -184,19 +185,26 @@ template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
 bool Vertex<VertexValue, EdgeValue, MessageValue>::sendMessageToAllNeighbors(const MessageValue& message) {
+    bool ret = true;
     for (typename vector<Edge<EdgeValue>*>::iterator itr = outEdgeList.begin(); itr != outEdgeList.end(); itr++) {
         int dest_vertex = (*itr)->getDest();
-        sendMessageTo(dest_vertex, message);		
+        if(sendMessageTo(dest_vertex, message)==false){
+            missingDestHandler(dest_vertex);
+            ret = false;
+        }
     }
-    return true;
+    return ret;
 }
-
 
 template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
 bool Vertex<VertexValue, EdgeValue, MessageValue>::sendMessageTo(const int& dest_vertex, const MessageValue& message) {
-    return master->receiveMessage(dest_vertex, message);
+    if(master->receiveMessage(dest_vertex, message)==false){
+        missingDestHandler(dest_vertex);
+        return false;
+    }
+    return true;
 }
 
 #endif

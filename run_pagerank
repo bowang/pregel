@@ -1,0 +1,47 @@
+# declare a name for this job
+#PBS -N pagerank
+# request processors
+#PBS -l nodes=1:h23:ppn=8
+# estimate run time
+#PBS -l cput=2:00:00
+# combine stdout and stderr
+#PBS -j oe
+# commands to run
+cd ~/final_proj
+pwd
+rm -f tmp
+rm -rf ~/final_proj/results/pagerank
+mkdir ~/final_proj/results/pagerank
+./pagerank 1 s pagerank.in > ~/final_proj/results/pagerank/s1.out
+mv tmp ~/final_proj/results/pagerank/s1.result
+./pagerank 2 s pagerank.in > ~/final_proj/results/pagerank/s2.out
+mv tmp ~/final_proj/results/pagerank/s2.result
+./pagerank 4 s pagerank.in > ~/final_proj/results/pagerank/s4.out
+mv tmp ~/final_proj/results/pagerank/s4.result
+./pagerank 8 s pagerank.in > ~/final_proj/results/pagerank/s8.out
+mv tmp ~/final_proj/results/pagerank/s8.result
+./pagerank 16 s pagerank.in > ~/final_proj/results/pagerank/s16.out
+mv tmp ~/final_proj/results/pagerank/s16.result
+
+./pagerank 1 e pagerank.in > ~/final_proj/results/pagerank/e1.out
+mv tmp ~/final_proj/results/pagerank/e1.result
+./pagerank 2 e pagerank.in > ~/final_proj/results/pagerank/e2.out
+mv tmp ~/final_proj/results/pagerank/e2.result
+./pagerank 4 e pagerank.in > ~/final_proj/results/pagerank/e4.out
+mv tmp ~/final_proj/results/pagerank/e4.result
+./pagerank 8 e pagerank.in > ~/final_proj/results/pagerank/e8.out
+mv tmp ~/final_proj/results/pagerank/e8.result
+./pagerank 16 e pagerank.in > ~/final_proj/results/pagerank/e16.out
+mv tmp ~/final_proj/results/pagerank/e16.result
+
+./pagerank 1 a pagerank.in > ~/final_proj/results/pagerank/a1.out
+mv tmp ~/final_proj/results/pagerank/a1.result
+./pagerank 2 a pagerank.in > ~/final_proj/results/pagerank/a2.out
+mv tmp ~/final_proj/results/pagerank/a2.result
+./pagerank 4 a pagerank.in > ~/final_proj/results/pagerank/a4.out
+mv tmp ~/final_proj/results/pagerank/a4.result
+./pagerank 8 a pagerank.in > ~/final_proj/results/pagerank/a8.out
+mv tmp ~/final_proj/results/pagerank/a8.result
+./pagerank 16 a pagerank.in > ~/final_proj/results/pagerank/a16.out
+mv tmp ~/final_proj/results/pagerank/a16.result
+

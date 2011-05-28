@@ -17,7 +17,7 @@ template <typename VertexValue,
           typename MessageValue>
 class Master {
 public:
-    Master(const int& numProcs);
+    Master(const int& numProcs, const PartitionHeuristics& partition);
     ~Master(){};
     void initialTasks();
     void run();
@@ -67,9 +67,9 @@ private:
 template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
-Master<VertexValue, EdgeValue, MessageValue>::Master(const int& numProcs): _numProcs(numProcs){
+Master<VertexValue, EdgeValue, MessageValue>::Master(const int& numProcs, const PartitionHeuristics& partition)
+  : _numProcs(numProcs), _partitionHeuristic(partition) {
     _numVertices = 0;
-    _partitionHeuristic = EvenPartition; // SimplePartition;
     _vertexList = new vector < Vertex<VertexValue, EdgeValue, MessageValue>* >;
 }
 
@@ -133,8 +133,14 @@ template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
 void Master<VertexValue, EdgeValue, MessageValue>::removeVertex(const int& id) {
+    assert(id < _numVertices);
+
     // remove from haltVoter
     _haltVoters.removeVoter(id);
+    
+    // remove messageList
+    msgList0[id].clear();
+    msgList1[id].clear();
     
     // remove its outEdges
     (*_vertexList)[id]->removeOutEdges();
@@ -181,8 +187,15 @@ template <typename VertexValue,
           typename EdgeValue,
           typename MessageValue>
 bool Master<VertexValue, EdgeValue, MessageValue>::receiveMessage(const int& dest_vertex, const MessageValue& message) {
-    (*curtMsgList)[dest_vertex].addMessage(message);
-    return true;
+    // assert(dest_vertex < _numVertices);
+    
+    if((*_vertexList)[dest_vertex]!=NULL){
+        (*curtMsgList)[dest_vertex].addMessage(message);
+        return true;
+    }
+    else{
+        return false;
+    }
 }
 
 template <typename VertexValue,

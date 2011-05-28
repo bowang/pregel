@@ -4,13 +4,13 @@
 #define INF 2147483647
 
 void ShortestPathInit(int argc, char* argv[], Master<int, int,int> &master){
-    if (argc != 3) {
-        printf ("Usage: %s <num_procs> <input_file>\n", argv[0]);
+    if (argc != 4) {
+        printf ("Usage: %s <num_procs> <partition_mode:s,e,a,l> <input_file>\n", argv[0]);
         exit (1);
     }
 
-    printf("[ShortestPathInit] parsing ShortestPath input: %s\n", argv[2]);
-    FILE* input = fopen(argv[2], "rt");
+    printf("[ShortestPathInit] parsing ShortestPath input: %s\n", argv[3]);
+    FILE* input = fopen(argv[3], "rt");
 
     int ret;
     int num_nodes = 0;
