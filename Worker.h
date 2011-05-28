@@ -64,7 +64,13 @@ void* Worker<VertexValue, EdgeValue, MessageValue>::run() {
                 // process graph
                 for(set<int>::iterator itr = task->begin(); itr != task->end(); itr++) {
                     MessageIterator<MessageValue> *msgItr = new MessageIterator<MessageValue> ((*(master->nextMsgList))[*itr]);
-                    (*(master->_vertexList))[*itr]->compute(msgItr);
+                    if(!master->vertexStatus(*itr)) {
+                        (*(master->_vertexList))[*itr]->compute(msgItr);
+                    }
+                    else if(!msgItr->done()) {
+                        master->voteToAlive(*itr);
+                        (*(master->_vertexList))[*itr]->compute(msgItr);
+                    }
                 }
             }
         }
@@ -74,13 +80,16 @@ void* Worker<VertexValue, EdgeValue, MessageValue>::run() {
         pthread_barrier_wait(&(master->_barrier1));
         
         if(threadId == 0){
-            /*
-              FPRINTF (f, "[vertex values] ");
-              for (int i = 0; i < master->numVertices(); i++) {
-                  FPRINTF (f, "%.6f\t", master->_vertexList->at(i)->getValue());
-              }
-              FPRINTF (f, "\n");
-            */
+            FPRINTF (f, "[vertex values] ");
+            for (int i = 0; i < master->numVertices(); i++) {
+                #ifdef PAGERANK
+                FPRINTF (f, "%.6f\t", master->_vertexList->at(i)->getValue());
+                #endif
+                #ifdef SHORTESTPATH
+                FPRINTF (f, "%d\t", master->_vertexList->at(i)->getValue());
+                #endif
+            }
+            FPRINTF (f, "\n");
 
             // reset states for next superstep
             master->switchMessagelist();

@@ -79,9 +79,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Edge.h" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="PageRank.h" />
@@ -91,6 +88,7 @@
     <ClInclude Include="Master.h" />
     <ClInclude Include="TaskList.h" />
     <ClInclude Include="Thread.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Votes.h" />
     <ClInclude Include="Worker.h" />
@@ -104,6 +102,7 @@
     <ClCompile Include="Master.cpp" />
     <ClCompile Include="TaskList.cpp" />
     <ClCompile Include="Thread.cpp" />
+    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="Worker.cpp" />
   </ItemGroup>

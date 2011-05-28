@@ -38,10 +38,18 @@ public:
         return concensusCache;
     }
     
-    void vote(int id) {
+    void vote(const int& id) {
         votes[positionMap[id]] = true;
     }
+    
+    void unvote(const int& id) {
+        votes[positionMap[id]] = false;
+    }
 
+    bool vertexStatus(const int& id) {
+        return votes[positionMap[id]];
+    }
+    
 private:
     vector<bool> votes;
     map<int, int> positionMap;

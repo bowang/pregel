@@ -24,9 +24,11 @@ public:
     int superstep() const {return _superstep;};
     int numVertices() const {return _numVertices;};
     bool receiveMessage(const int& dest_vertex, const MessageValue& message);
-    void voteToHalt(const int& id) { _haltVoters.vote(id); };
+    void voteToHalt(const int& id) { _haltVoters.vote(id); }
+    void voteToAlive(const int& id) { _haltVoters.unvote(id); };
     void addVertex(Vertex<VertexValue, EdgeValue, MessageValue> *vertex);
     void removeVertex(const int& id);
+    bool vertexStatus(const int& id);
     
     friend class Worker<VertexValue, EdgeValue, MessageValue>;
 
@@ -175,6 +177,13 @@ template <typename VertexValue,
 bool Master<VertexValue, EdgeValue, MessageValue>::receiveMessage(const int& dest_vertex, const MessageValue& message) {
     (*curtMsgList)[dest_vertex].addMessage(message);
     return true;
+}
+
+template <typename VertexValue,
+          typename EdgeValue,
+          typename MessageValue>
+bool Master<VertexValue, EdgeValue, MessageValue>::vertexStatus(const int& id) {
+    return _haltVoters.vertexStatus(id);
 }
 
 #endif
