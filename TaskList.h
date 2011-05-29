@@ -137,60 +137,72 @@ void TaskList<VertexValue, EdgeValue, MessageValue>::adaptivePartition(){
     _partitionSize = -1;
     taskPartition.resize(_partitionNum);
     
-    int i, numRemaining;
+    int i, numRemaining, granularity;
     int index = 0;
-    int granularity = numVertices/(2*2*numProcs) + ((numVertices%(2*2*numProcs)==0)?0:1);
-    for(i = 0; i < 2*numProcs; i++){
+    numRemaining = numVertices - index;
+    if(numRemaining > 0){
+      granularity = numVertices/(2*2*numProcs) + ((numVertices%(2*2*numProcs)==0)?0:1);
+      for(i = 0; i < 2*numProcs; i++){
         for(int j = 0; j < granularity; j++){
+          if(index < numVertices) {
             taskPartition[i].insert(index++);
             PRINTF("%d ", index-1);
+          }
         }
         PRINTF("\n");
+      }
+      PRINTF("-----\n");
     }
-    PRINTF("-----\n");
     
     numRemaining = numVertices - index;
-    granularity = numRemaining/(2*2*numProcs) + ((numRemaining%(2*2*numProcs)==0)?0:1);
-    for(i = 2*numProcs; i < 4*numProcs; i++){
+    if(numRemaining > 0){
+      granularity = numRemaining/(2*2*numProcs) + ((numRemaining%(2*2*numProcs)==0)?0:1);
+      for(i = 2*numProcs; i < 4*numProcs; i++){
         for(int j = 0; j < granularity; j++){
+          if(index < numVertices) {
             taskPartition[i].insert(index++);
             PRINTF("%d ", index-1);
+          }
         }
         PRINTF("\n");
+      }
+      PRINTF("-----\n");
     }
-    PRINTF("-----\n");
     
     numRemaining = numVertices - index;
-    granularity = numRemaining/(4*numProcs) + ((numRemaining%(4*numProcs)==0)?0:1);
-    for(i = 4*numProcs; i < 8*numProcs - 1; i++){
+    if(numRemaining > 0) {
+      granularity = numRemaining/(4*numProcs) + ((numRemaining%(4*numProcs)==0)?0:1);
+      PRINTF("numRemaining = %d, granularity = %d\n", numRemaining, granularity);
+      for(i = 4*numProcs; i < 8*numProcs - 1; i++){
         for(int j = 0; j < granularity; j++){
-            if(index < numVertices) {
-                taskPartition[i].insert(index++);
-                PRINTF("%d ", index-1);
-            }
+          if(index < numVertices) {
+            taskPartition[i].insert(index++);
+            PRINTF("%d ", index-1);
+          }
         }
         PRINTF("\n");
-    }
-    PRINTF("-----\n");
-    
-    while(index < numVertices){
+      }
+      PRINTF("-----\n");
+      
+      while(index < numVertices){
         taskPartition[i].insert(index++);
         PRINTF("%d ", index-1);
+      }
+      PRINTF("\n");
     }
-    PRINTF("\n");
-
+    
     for(int k = 0; k < _partitionNum; k++){
-        if(taskPartition[k].empty()){
-            _partitionNum = k;
-            PRINTF("_partitionNum = %d\n", _partitionNum);
-            typename vector< set<int> >::iterator itr1 = taskPartition.begin() + k;
-            typename vector< set<int> >::iterator itr2 = taskPartition.end() - 1;
-            for(;itr2 >= itr1; itr2--){
-                taskPartition.erase(itr2);
-                PRINTF("erase taskPartition[%d]\n", itr2 - taskPartition.begin());
-            }
-            break;
+      if(taskPartition[k].empty()){
+        _partitionNum = k;
+        PRINTF("_partitionNum = %d\n", _partitionNum);
+        typename vector< set<int> >::iterator itr1 = taskPartition.begin() + k;
+        typename vector< set<int> >::iterator itr2 = taskPartition.end() - 1;
+        for(;itr2 >= itr1; itr2--){
+          taskPartition.erase(itr2);
+          PRINTF("erase taskPartition[%d]\n", itr2 - taskPartition.begin());
         }
+        break;
+      }
     }    
     PRINTF("index = %d, numVertices = %d\n", index, numVertices);
 }

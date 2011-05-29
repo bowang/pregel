@@ -1,8 +1,8 @@
 CC     = g++
 CFLAGS = -lpthread -O4 # -Wall
-#DFLAGS = -DPAGERANK # -DDPRINT
+DFLAGS = -DPAGERANK  -DDPRINT
 #DFLAGS = -DSHORTESTPATH # -DDPRINT
-DFLAGS = -DBIPARTITEMATCHING -DDPRINT
+#DFLAGS = -DBIPARTITEMATCHING -DDPRINT
 APPS   = PageRankVertex.o PageRank.o ShortestPathVertex.o ShortestPath.o BipartiteMatchingVertex.o BipartiteMatching.o
 OBJS   = Message.o Edge.o Vertex.o TaskList.o Master.o Thread.o Worker.o Timer.o Pregel.o
 OBJS  += $(APPS)
